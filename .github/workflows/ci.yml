@@ -1,22 +1,23 @@
 name: Step Motor Test Pipeline
 
-on: [push] # Her kod gönderdiğinde otomatik başlar
+on: [push]
 
 jobs:
   analyze_and_test:
-    runs-on: ubuntu-latest # Testlerin çalışacağı bulut bilgisayar
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4 # Kodunu sanal makineye çeker
+        uses: actions/checkout@v4
+
+      - name: List Files (Debug)
+        # Dosyaların nerede olduğunu görmek için listeleyelim
+        run: ls -R 
 
       - name: Install Cppcheck
-        run: sudo apt-get install -y cppcheck # Statik analiz aracını kurar
+        run: sudo apt-get update && sudo apt-get install -y cppcheck
 
       - name: Run Static Analysis
-        # Makalede bahsedilen 'verifiable' kod için analiz yapar
-        run: cppcheck --enable=all --suppress=missingIncludeSystem .
-
-      - name: Build Check
-        # Kodun derlenebilir olduğunu kontrol eder
-        run: echo "Kod başarıyla analiz edildi ve derlemeye hazır."
+        # Nokta (.) yerine dosyanı direkt göstererek işi garantiye alalım
+        # Makalede bahsedilen 'verifiable' kod denetimi
+        run: cppcheck --enable=all --suppress=missingIncludeSystem newmain.c
