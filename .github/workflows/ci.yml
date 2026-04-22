@@ -10,14 +10,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: List Files (Debug)
-        # Dosyaların nerede olduğunu görmek için listeleyelim
-        run: ls -R 
+      - name: Install Cppcheck and Python
+        # MISRA eklentisi Python altyapısını kullandığı için python3'ü de kuruyoruz
+        run: sudo apt-get update && sudo apt-get install -y cppcheck python3
 
-      - name: Install Cppcheck
-        run: sudo apt-get update && sudo apt-get install -y cppcheck
-
-      - name: Run Static Analysis
-        # Nokta (.) yerine dosyanı direkt göstererek işi garantiye alalım
-        # Makalede bahsedilen 'verifiable' kod denetimi
-        run: cppcheck --enable=all --suppress=missingIncludeSystem .
+      - name: Run MISRA C Compliance Check
+        # --addon=misra parametresi ile MISRA standartlarını devreye sokuyoruz
+        run: cppcheck --addon=misra --enable=all --suppress=missingIncludeSystem --error-exitcode=1 .
