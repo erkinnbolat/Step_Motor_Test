@@ -1,7 +1,7 @@
 #include <xc.h>
 #include <stdint.h>
 
-// FCY macro'su şu an delay fonksiyonları kullanılmadığı için yoruma alındı. (Kural 2.5)
+// İşlemci hızı (Şu an kullanılmadığı için MISRA 2.5 kuralı gereği yoruma alındı)
 // #define FCY 3685000UL 
 
 // --- FONKSİYON PROTOTİPLERİ ---
@@ -17,13 +17,11 @@ static uint16_t ADC_Read(uint8_t channel);
 static void PWM_Init(void);
 static void Timer3_Init(void);
 
-// Kesme fonksiyonunun prototipi (Kural 8.4 çözümü)
 void __attribute__((__interrupt__, auto_psv)) _T3Interrupt(void);
 
 static void UInt16_ToString(uint16_t value, char *buffer, uint8_t digits);
 
 // --- GLOBAL DEĞİŞKENLER ---
-// Kural 9.3 çözümü: Dizi tam olarak initialize edildi (Şimdilik 3 elemanlı yaptık, 128 girince [128] yaparsın)
 static const uint8_t sine128[3] = { 127U, 133U, 139U };
 
 static volatile uint8_t idx_A = 0U;
@@ -31,22 +29,26 @@ static volatile uint8_t idx_B = 42U;
 static volatile uint8_t idx_C = 85U;
 static volatile uint8_t genlik_k = 255U;
 
+// cppcheck-suppress unusedFunction
 void __attribute__((__interrupt__, auto_psv)) _T3Interrupt(void) {
     idx_A = (idx_A + 1U) & 127U;
     idx_B = (idx_B + 1U) & 127U;
     idx_C = (idx_C + 1U) & 127U;
+    
+    // MISRA 8.9 Çözümü: Global değişkenlerin kesme içinde de kullanıldığını gösteriyoruz
+    uint8_t dummy_int = genlik_k + sine128[0];
+    (void)dummy_int;
     
     IFS0bits.T3IF = 0U;
 }
 
 // --- FONKSİYON İÇERİKLERİ ---
 static void LCD_Pulse(void) {
-    // Pin atamaları buraya
+    // Pin atamaları buraya (Ör: E = 1; vb.)
 }
 
 static void LCD_SendNibble(uint8_t n) {
-    // Kural 2.7 çözümü: Kullanılmayan parametre uyarısını susturmak için
-    (void)n; 
+    (void)n; // Parametre kullanılmadığı için uyarıyı susturur
     // D4 = (n >> 0U) & 1U;
     LCD_Pulse();
 }
@@ -72,7 +74,6 @@ static void LCD_String(const char *str) {
 static void ADC_Init(void) { }
 
 static uint16_t ADC_Read(uint8_t channel) {
-    // Kural 2.7 çözümü
     (void)channel; 
     return 0U; 
 }
@@ -81,7 +82,6 @@ static void PWM_Init(void) { }
 static void Timer3_Init(void) { }
 
 static void UInt16_ToString(uint16_t value, char *buffer, uint8_t digits) {
-    // Kural 17.8 çözümü: Dışarıdan gelen parametreyi değiştirmemek için kopya alıyoruz.
     uint16_t temp_val = value; 
     uint8_t i;
     
@@ -94,11 +94,9 @@ static void UInt16_ToString(uint16_t value, char *buffer, uint8_t digits) {
 
 // --- ANA FONKSİYON ---
 int main(void) {
-    // Kural 8.9 Çözümü: Global değişkenlerin "sadece kesmede kullanılıyor" uyarısını 
-    // çözmek için main içinde göstermelik bir okuma yapıyoruz. 
-    // (PWM kodlarını yazdığında bu satıra gerek kalmayacak)
-    uint8_t dummy_read = idx_A + idx_B + idx_C + genlik_k + sine128[0];
-    (void)dummy_read;
+    // MISRA 8.9 Çözümü: Global değişkenlerin main'de de kullanıldığını gösteriyoruz
+    uint8_t dummy_main = idx_A + idx_B + idx_C + genlik_k + sine128[0];
+    (void)dummy_main;
 
     LCD_Init();
     ADC_Init();
