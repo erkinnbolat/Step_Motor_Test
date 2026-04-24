@@ -29,7 +29,6 @@ static volatile uint8_t idx_B = 42U;
 static volatile uint8_t idx_C = 85U;
 static volatile uint8_t genlik_k = 255U;
 
-// cppcheck-suppress unusedFunction
 void __attribute__((__interrupt__, auto_psv)) _T3Interrupt(void) {
     idx_A = (idx_A + 1U) & 127U;
     idx_B = (idx_B + 1U) & 127U;
