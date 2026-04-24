@@ -14,5 +14,4 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y cppcheck python3
 
       - name: Run MISRA C Compliance Check
-        # Bütün sistem, kütüphane ve kullanılmayan kesme (interrupt) hataları komut satırından tamamen susturuldu
-        run: cppcheck --addon=misra --enable=all --inline-suppr --suppress=missingIncludeSystem --suppress=misra-config --suppress=unusedFunction --error-exitcode=1 newmain.c
+        run: cppcheck --addon=misra --enable=all --inline-suppr --suppress=missingIncludeSystem --suppress=unusedFunction --error-exitcode=1 newmain.c
